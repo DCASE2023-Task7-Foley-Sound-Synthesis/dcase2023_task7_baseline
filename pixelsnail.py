@@ -12,7 +12,6 @@ import numpy as np
 import torch
 from torch import nn
 from torch.nn import functional as F
-from datasets import  CodeRow
 
 
 def wn_linear(in_dim, out_dim):
@@ -504,7 +503,7 @@ class PixelSNAIL(nn.Module):
 if __name__ == '__main__':
     from torch.utils.data import DataLoader
     from datasets import LMDBDataset
-    from torch import nn, optim
+    from torch import nn
     device = 'cuda'
 
     dataset = LMDBDataset('code/')

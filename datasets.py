@@ -10,9 +10,7 @@ from vqvae import VQVAE
 import lmdb
 import pickle
 from torch.utils.data import Dataset
-from torch.utils.data import DataLoader
 from collections import namedtuple
-from torch.nn import functional as F
 
 CodeRow = namedtuple('CodeRow', ['bottom', 'class_id', 'salience', 'filename'])
 clas_dict:dict = {

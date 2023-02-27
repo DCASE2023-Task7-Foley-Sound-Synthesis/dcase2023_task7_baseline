@@ -16,7 +16,7 @@ For the neural vocoder, we brought the generator model code from [jik876/hifi-ga
 * Clone the repository: 
 
   ```
-  git clone https://github.com/jakeoneijk/dcase2023_task7_baseline.git
+  git clone https://github.com/DCASE2023-Task7-Foley-Sound-Synthesis/dcase2023_task7_baseline.git
   ```
 
 * Create conda environment with dependencies: 

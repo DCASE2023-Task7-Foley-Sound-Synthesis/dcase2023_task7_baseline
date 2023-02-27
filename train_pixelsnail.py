@@ -12,6 +12,7 @@ from datasets import LMDBDataset
 from pixelsnail import PixelSNAIL
 from scheduler import CycleScheduler
 
+
 def train(epoch, loader, model, optimizer, scheduler, device):
     loader = tqdm(loader)
 
@@ -20,7 +21,7 @@ def train(epoch, loader, model, optimizer, scheduler, device):
     for i, (bottom, class_id, salience, file_name) in enumerate(loader):
         model.zero_grad()
 
-        class_id = torch.FloatTensor(list( list(class_id))).long().unsqueeze(1)
+        class_id = torch.FloatTensor(list(list(class_id))).long().unsqueeze(1)
         # salience = torch.FloatTensor(list(map(eval, list(salience)))).unsqueeze(1)
 
         bottom = bottom.to(device)
@@ -54,9 +55,6 @@ def train(epoch, loader, model, optimizer, scheduler, device):
         )
 
 
-
-
-
 class PixelTransform:
     def __init__(self):
         pass
@@ -68,7 +66,7 @@ class PixelTransform:
 
 
 if __name__ == '__main__':
-    os.makedirs("checkpoint/pixelsnail-final",exist_ok=True)
+    os.makedirs("checkpoint/pixelsnail-final", exist_ok=True)
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch', type=int, default=8)
     parser.add_argument('--epoch', type=int, default=1500)
@@ -129,7 +127,7 @@ if __name__ == '__main__':
             256,
             dropout=0.1,
             n_out_res_block=0,
-            cond_res_channel=0
+            cond_res_channel=0,
         )
 
     elif args.hier == 'bottom':
@@ -170,9 +168,6 @@ if __name__ == '__main__':
         train(i, loader, model, optimizer, scheduler, device)
 
         torch.save(
-                    {'model': model.module.state_dict(), 'args': args},
-                    f'checkpoint/pixelsnail-final/{args.hier}_{str(i + 1).zfill(3)}.pt',
-                )
-
-
-
+            {'model': model.module.state_dict(), 'args': args},
+            f'checkpoint/pixelsnail-final/{args.hier}_{str(i + 1).zfill(3)}.pt',
+        )

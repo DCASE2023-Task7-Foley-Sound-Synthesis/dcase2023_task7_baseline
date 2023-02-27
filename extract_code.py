@@ -10,6 +10,7 @@ from datasets import get_dataset_filelist
 from vqvae import VQVAE
 from datasets import CodeRow
 
+
 def extract(lmdb_env, loader, model, device):
     index = 0
 
@@ -24,7 +25,9 @@ def extract(lmdb_env, loader, model, device):
             id_b = id_b.detach().cpu().numpy()
 
             for c_id, sali, file, bottom in zip(class_id, salience, filename, id_b):
-                row = CodeRow(bottom=bottom, class_id=c_id, salience=sali, filename=file)
+                row = CodeRow(
+                    bottom=bottom, class_id=c_id, salience=sali, filename=file
+                )
                 txn.put(str(index).encode('utf-8'), pickle.dumps(row))
                 index += 1
                 pbar.set_description(f'inserted: {index}')
@@ -34,7 +37,9 @@ def extract(lmdb_env, loader, model, device):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--vqvae_checkpoint', type=str, default='./checkpoint/vqvae/vqvae.pth')
+    parser.add_argument(
+        '--vqvae_checkpoint', type=str, default='./checkpoint/vqvae/vqvae.pth'
+    )
     parser.add_argument('--name', type=str, default='vqvae-code')
 
     args = parser.parse_args()
@@ -43,7 +48,9 @@ if __name__ == '__main__':
 
     train_file_list = get_dataset_filelist()
 
-    train_set = audio2mel.Audio2Mel(train_file_list, 22050 * 4, 1024, 80, 256, 22050, 0, 8000)
+    train_set = audio2mel.Audio2Mel(
+        train_file_list, 22050 * 4, 1024, 80, 256, 22050, 0, 8000
+    )
 
     loader = DataLoader(train_set, batch_size=128, sampler=None, num_workers=2)
 
@@ -51,7 +58,7 @@ if __name__ == '__main__':
     #     mel, id, name = batch
 
     model = VQVAE()
-    model.load_state_dict(torch.load(args.vqvae_checkpoint,map_location='cpu'))
+    model.load_state_dict(torch.load(args.vqvae_checkpoint, map_location='cpu'))
     model = model.to(device)
     model.eval()
 

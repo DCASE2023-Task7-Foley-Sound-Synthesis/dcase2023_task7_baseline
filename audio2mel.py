@@ -5,6 +5,7 @@ import numpy as np
 import datasets
 
 import warnings
+
 warnings.filterwarnings("ignore")
 
 MAX_WAV_VALUE = 32768.0
@@ -21,6 +22,7 @@ MAX_WAV_VALUE = 32768.0
 #     return np.log(mel + 1e-9)
 
 """ Mel-Spectrogram extraction code from HiFi-GAN meldataset.py"""
+
 
 def dynamic_range_compression(x, C=1, clip_val=1e-5):
     return np.log(np.clip(x, a_min=clip_val, a_max=None) * C)
@@ -51,30 +53,50 @@ def spectral_de_normalize_torch(magnitudes):
 mel_basis = {}
 hann_window = {}
 
-def mel_spectrogram_hifi(audio, n_fft, n_mels, sample_rate, hop_length, fmin, fmax, center=False):
+
+def mel_spectrogram_hifi(
+    audio, n_fft, n_mels, sample_rate, hop_length, fmin, fmax, center=False
+):
     audio = torch.FloatTensor(audio)
     audio = audio.unsqueeze(0)
 
-    if torch.min(audio) < -1.:
+    if torch.min(audio) < -1.0:
         print('min value is ', torch.min(audio))
-    if torch.max(audio) > 1.:
+    if torch.max(audio) > 1.0:
         print('max value is ', torch.max(audio))
 
     global mel_basis, hann_window
     if fmax not in mel_basis:
-        mel_fb = librosa.filters.mel(sr=sample_rate,n_fft=n_fft,n_mels=n_mels,fmin=fmin,fmax=fmax)
-        mel_basis[str(fmax)+'_'+str(audio.device)] = torch.from_numpy(mel_fb).float().to(audio.device)
+        mel_fb = librosa.filters.mel(
+            sr=sample_rate, n_fft=n_fft, n_mels=n_mels, fmin=fmin, fmax=fmax
+        )
+        mel_basis[str(fmax) + '_' + str(audio.device)] = (
+            torch.from_numpy(mel_fb).float().to(audio.device)
+        )
         hann_window[str(audio.device)] = torch.hann_window(n_fft).to(audio.device)
 
-    audio = torch.nn.functional.pad(audio.unsqueeze(1), (int((n_fft-hop_length)/2), int((n_fft-hop_length)/2)), mode='reflect')
+    audio = torch.nn.functional.pad(
+        audio.unsqueeze(1),
+        (int((n_fft - hop_length) / 2), int((n_fft - hop_length) / 2)),
+        mode='reflect',
+    )
     audio = audio.squeeze(1)
 
-    spec = torch.stft(audio, n_fft, hop_length=hop_length, window=hann_window[str(audio.device)],
-                      center=center, pad_mode='reflect', normalized=False, onesided=True, return_complex=False)
+    spec = torch.stft(
+        audio,
+        n_fft,
+        hop_length=hop_length,
+        window=hann_window[str(audio.device)],
+        center=center,
+        pad_mode='reflect',
+        normalized=False,
+        onesided=True,
+        return_complex=False,
+    )
 
     spec = torch.sqrt(spec.pow(2).sum(-1) + 1e-9)
 
-    mel = torch.matmul(mel_basis[str(fmax)+'_'+str(audio.device)], spec)
+    mel = torch.matmul(mel_basis[str(fmax) + '_' + str(audio.device)], spec)
     mel = spectral_normalize_torch(mel).numpy()
 
     # pad_size = math.ceil(mel.shape[2] / 8) * 8 - mel.shape[2]
@@ -83,12 +105,24 @@ def mel_spectrogram_hifi(audio, n_fft, n_mels, sample_rate, hop_length, fmin, fm
 
     return mel
 
+
 """ Mel-Spectrogram extraction code from HiFi-GAN meldataset.py"""
 
+
 class Audio2Mel(torch.utils.data.Dataset):
-    def __init__(self, audio_files, max_length, n_fft, n_mels, hop_length, sample_rate, fmin, fmax):
+    def __init__(
+        self,
+        audio_files,
+        max_length,
+        n_fft,
+        n_mels,
+        hop_length,
+        sample_rate,
+        fmin,
+        fmax,
+    ):
         self.audio_files = audio_files
-        self.max_length = max_length # max length of audio
+        self.max_length = max_length  # max length of audio
         self.n_fft = n_fft
         self.n_mels = n_mels
         self.hop_length = hop_length
@@ -98,18 +132,22 @@ class Audio2Mel(torch.utils.data.Dataset):
 
     def __getitem__(self, index):
         filename = self.audio_files[index]['file_path']
-        class_id = self.audio_files[index]['class_id'] #datasets.get_class_id(filename)
-        salience = 1 #datasets.get_salience(filename)
+        class_id = self.audio_files[index][
+            'class_id'
+        ]  # datasets.get_class_id(filename)
+        salience = 1  # datasets.get_salience(filename)
 
         sample_rate, audio = loadwav(filename)
         audio = audio / MAX_WAV_VALUE
 
         if sample_rate != self.sample_rate:
-            raise ValueError("{} sr doesn't match {} sr ".format(sample_rate, self.sample_rate))
+            raise ValueError(
+                "{} sr doesn't match {} sr ".format(sample_rate, self.sample_rate)
+            )
 
         if len(audio) > self.max_length:
-            #raise ValueError("{} length overflow".format(filename))
-            audio = audio[0:self.max_length]
+            # raise ValueError("{} length overflow".format(filename))
+            audio = audio[0 : self.max_length]
 
         # pad audio to max length, 4s for Urbansound8k dataset
         if len(audio) < self.max_length:
@@ -118,9 +156,15 @@ class Audio2Mel(torch.utils.data.Dataset):
 
         # mel = mel_spectrogram(audio, n_fft=self.n_fft, n_mels=self.n_mels, hop_length=self.hop_length, sample_rate=self.sample_rate)
 
-        mel_spec = mel_spectrogram_hifi(audio, n_fft=self.n_fft, n_mels=self.n_mels, hop_length=self.hop_length, sample_rate=self.sample_rate, fmin=self.fmin, fmax=self.fmax)
-
-
+        mel_spec = mel_spectrogram_hifi(
+            audio,
+            n_fft=self.n_fft,
+            n_mels=self.n_mels,
+            hop_length=self.hop_length,
+            sample_rate=self.sample_rate,
+            fmin=self.fmin,
+            fmax=self.fmax,
+        )
 
         # print(mel_spec.shape)
         return mel_spec, class_id, salience, filename
@@ -129,7 +173,6 @@ class Audio2Mel(torch.utils.data.Dataset):
         return len(self.audio_files)
 
 
-    
 def extract_flat_mel_from_Audio2Mel(Audio2Mel):
     mel = []
 
@@ -139,12 +182,13 @@ def extract_flat_mel_from_Audio2Mel(Audio2Mel):
     return np.array(mel)
 
 
-
 if __name__ == '__main__':
     train_file_list, test_file_list = datasets.get_dataset_filelist()
 
     print(train_file_list[100])
 
-    train_set = Audio2Mel(train_file_list[0:2], 22050 * 4, 1024, 80, 256, 22050, 0, 8000)
+    train_set = Audio2Mel(
+        train_file_list[0:2], 22050 * 4, 1024, 80, 256, 22050, 0, 8000
+    )
 
     print(train_set[0][0].shape)

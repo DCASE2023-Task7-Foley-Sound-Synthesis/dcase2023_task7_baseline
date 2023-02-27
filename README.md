@@ -9,7 +9,7 @@ The code of this repository is mostly from [liuxubo717/sound_generation](https:/
   year={2021}
 }
 ```
-For the neural vocoder, we brought the generator model code from [hifigan](https://github.com/jik876/hifi-gan).
+For the neural vocoder, we brought the generator model code from [jik876/hifi-gan](https://github.com/jik876/hifi-gan).
 
 ## Set up
 

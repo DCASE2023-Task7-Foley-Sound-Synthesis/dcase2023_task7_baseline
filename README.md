@@ -50,10 +50,10 @@ python extract_code.py --vqvae_checkpoint [VQ-VAE CHECKPOINT]
 3: (Stage 2) Train a PixelSNAIL model on the extracted DTFR of sound. The pre-trained model will be saved to `checkpoint/pixelsnail-final/`.
 
 ```
-python train_pixelsnail.py --epoch 1500 The synthesized sound samples will be saved to `./synthesized`
+python train_pixelsnail.py --epoch 1500
 ```
 
-4: Inference sounds.
+4: Inference sounds. The synthesized sound samples will be saved to `./synthesized`
 
 ```
 python inference.py --vqvae_checkpoint [VQ-VAE CHECKPOINT] --pixelsnail_checkpoint [PIXELSNAIL CHECKPOINT] --number_of_synthesized_sound_per_class [NUMBER OF SOUND SAMPLES]

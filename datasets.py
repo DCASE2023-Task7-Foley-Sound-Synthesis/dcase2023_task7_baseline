@@ -13,16 +13,16 @@ from torch.utils.data import Dataset
 from collections import namedtuple
 
 CodeRow = namedtuple('CodeRow', ['bottom', 'class_id', 'salience', 'filename'])
-clas_dict: dict = {
-    "DogBark": 0,
-    "Footstep": 1,
-    "GunShot": 2,
-    "Keyboard": 3,
-    "MovingMotorVehicle": 4,
-    "Rain": 5,
-    "Sneeze": 6,
-}
 
+clas_dict:dict = {
+            "DogBark":0,
+            "Footstep":1,
+            "GunShot":2,
+            "Keyboard":3,
+            "MovingMotorVehicle":4,
+            "Rain":5,
+            "Sneeze_Cough":6
+        }
 
 def get_file_path(path):
     file_list = os.listdir(path)

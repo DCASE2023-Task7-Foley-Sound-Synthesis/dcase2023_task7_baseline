@@ -24,21 +24,17 @@ class SoundSynthesisModel(ABC):
 
 
 class DCASE2023FoleySoundSynthesis:
-    def __init__(
-        self, number_of_synthesized_sound_per_class: int = 100, batch_size: int = 16
-    ) -> None:
-        self.number_of_synthesized_sound_per_class: int = (
-            number_of_synthesized_sound_per_class
-        )
-        self.batch_size: int = batch_size
-        self.class_id_dict: dict = {
-            0: 'DogBark',
-            1: 'Footstep',
-            2: 'GunShot',
-            3: 'Keyboard',
-            4: 'MovingMotorVehicle',
-            5: 'Rain',
-            6: 'Sneeze',
+    def __init__(self,number_of_synthesized_sound_per_class:int = 100, batch_size:int = 16) -> None:
+        self.number_of_synthesized_sound_per_class:int = number_of_synthesized_sound_per_class
+        self.batch_size:int = batch_size
+        self.class_id_dict:dict = {
+            0:'DogBark',
+            1:'Footstep',
+            2:'GunShot',
+            3:'Keyboard',
+            4:'MovingMotorVehicle',
+            5:'Rain',
+            6:'Sneeze_Cough'
         }
         self.sr: int = 22050
         self.save_dir: str = "./synthesized"

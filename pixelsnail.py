@@ -12,7 +12,6 @@ import numpy as np
 import torch
 from torch import nn
 from torch.nn import functional as F
-from datasets import  CodeRow
 
 
 def wn_linear(in_dim, out_dim):
@@ -324,6 +323,7 @@ class CondResNet(nn.Module):
     def forward(self, input):
         return self.blocks(input)
 
+
 class EmbedNet(nn.Module):
     def __init__(self, in_dim, hidden_dim, out_dim):
         super().__init__()
@@ -340,11 +340,12 @@ class EmbedNet(nn.Module):
     def forward(self, input):
         return self.blocks(input)
 
+
 class PixelSNAIL(nn.Module):
     def __init__(
         self,
         shape,
-        n_class, # code nums
+        n_class,  # code nums
         channel,
         kernel_size,
         n_block,
@@ -357,7 +358,6 @@ class PixelSNAIL(nn.Module):
         cond_res_kernel=3,
         n_out_res_block=0,
         cond_embed_channel=1,
-
         ###
         n_label=7,  # data class nums
         embed_dim=2048,
@@ -387,12 +387,17 @@ class PixelSNAIL(nn.Module):
         )
 
         coord_x = (torch.arange(height).float() - height / 2) / height
-        coord_x = coord_x.view(1, 1, height, 1).expand(1, 1, height, width) # shape: torch.Size([1, 1, 20, 86])
+        coord_x = coord_x.view(1, 1, height, 1).expand(
+            1, 1, height, width
+        )  # shape: torch.Size([1, 1, 20, 86])
         coord_y = (torch.arange(width).float() - width / 2) / width
-        coord_y = coord_y.view(1, 1, 1, width).expand(1, 1, height, width) # shape: torch.Size([1, 1, 20, 86])
+        coord_y = coord_y.view(1, 1, 1, width).expand(
+            1, 1, height, width
+        )  # shape: torch.Size([1, 1, 20, 86])
         # print('x', coord_x.shape, 'y', coord_y.shape)
-        self.register_buffer('background', torch.cat([coord_x, coord_y], 1)) # shape: self.background torch.Size([1, 2, 20, 86])
-
+        self.register_buffer(
+            'background', torch.cat([coord_x, coord_y], 1)
+        )  # shape: self.background torch.Size([1, 2, 20, 86])
 
         self.blocks = nn.ModuleList()
 
@@ -415,9 +420,7 @@ class PixelSNAIL(nn.Module):
             )
 
         ###
-        self.embedNet = EmbedNet(
-            n_label, embed_dim, 20*86
-        )
+        self.embedNet = EmbedNet(n_label, embed_dim, 20 * 86)
         ###
 
         out = []
@@ -442,7 +445,9 @@ class PixelSNAIL(nn.Module):
         out = horizontal + vertical
 
         # print('background-1', self.background.shape)
-        background = self.background[:, :, :height, :].expand(batch, 2, height, width) # shape: torch.Size([32, 2, 20, 86])
+        background = self.background[:, :, :height, :].expand(
+            batch, 2, height, width
+        )  # shape: torch.Size([32, 2, 20, 86])
         # print('background-2', background.shape)
 
         if True:
@@ -451,9 +456,8 @@ class PixelSNAIL(nn.Module):
                 condition = condition[:, :, :height, :]
 
             else:
-                label = (
-                    F.one_hot(label_condition, self.n_label)
-                    .type_as(self.background)
+                label = F.one_hot(label_condition, self.n_label).type_as(
+                    self.background
                 )
                 # salience = salience_condition.unsqueeze(1)
                 # condition = torch.cat((label, salience), 2)
@@ -494,7 +498,7 @@ class PixelSNAIL(nn.Module):
                 #     condition = condition[:, :, :height, :]
 
         for block in self.blocks:
-            out = block(out, background, condition=condition) #PixelBlock
+            out = block(out, background, condition=condition)  # PixelBlock
 
         out = self.out(out)
 
@@ -504,11 +508,14 @@ class PixelSNAIL(nn.Module):
 if __name__ == '__main__':
     from torch.utils.data import DataLoader
     from datasets import LMDBDataset
-    from torch import nn, optim
+    from torch import nn
+
     device = 'cuda'
 
     dataset = LMDBDataset('code/')
-    loader = DataLoader(dataset, batch_size=2, shuffle=True, num_workers=4, drop_last=True)
+    loader = DataLoader(
+        dataset, batch_size=2, shuffle=True, num_workers=4, drop_last=True
+    )
 
     model = PixelSNAIL(
         [20, 86],
@@ -522,7 +529,6 @@ if __name__ == '__main__':
         dropout=0.1,
         n_cond_res_block=3,
         cond_res_channel=256,
-
     )
 
     # model = PixelSNAIL(
@@ -542,18 +548,14 @@ if __name__ == '__main__':
     model = model.to(device)
 
     for i, (bottom, class_id, salience, file_name) in enumerate(loader):
-        class_id = torch.FloatTensor(list(map(eval, list(class_id)))).long().unsqueeze(1)
+        class_id = (
+            torch.FloatTensor(list(map(eval, list(class_id)))).long().unsqueeze(1)
+        )
         salience = torch.FloatTensor(list(map(eval, list(salience)))).unsqueeze(1)
         out, _ = model(bottom, label_condition=class_id, salience_condition=salience)
-        if i==5:
+        if i == 5:
             print(class_id, salience, file_name)
             break
-
-
-
-
-
-
 
 
 # class UCPixelSNAIL(nn.Module):
@@ -662,4 +664,3 @@ if __name__ == '__main__':
 #         out = self.out(out)
 #
 #         return out, cache
-

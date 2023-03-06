@@ -336,7 +336,7 @@ class LRFinder(lr_scheduler._LRScheduler):
         lr = (
             self.lr_mult * self.iteration
             if self.linear
-            else self.lr_mult ** self.iteration
+            else self.lr_mult**self.iteration
         )
         lr = self.lr_min + lr if self.linear else self.lr_min * lr
 

@@ -10,11 +10,10 @@ from vqvae import VQVAE
 import lmdb
 import pickle
 from torch.utils.data import Dataset
-from torch.utils.data import DataLoader
 from collections import namedtuple
-from torch.nn import functional as F
 
 CodeRow = namedtuple('CodeRow', ['bottom', 'class_id', 'salience', 'filename'])
+
 clas_dict:dict = {
             "DogBark":0,
             "Footstep":1,
@@ -60,7 +59,9 @@ def get_class_id(file_name):
                 return row[6]
 
 
-def get_dataset_filelist_urbansound8k(input_wavs_dir, input_annotation_file, test_fold_id: str, class_id=None):
+def get_dataset_filelist_urbansound8k(
+    input_wavs_dir, input_annotation_file, test_fold_id: str, class_id=None
+):
     training_files = []
     validation_files = []
 
@@ -85,13 +86,18 @@ def get_dataset_filelist_urbansound8k(input_wavs_dir, input_annotation_file, tes
     return training_files, validation_files
 
 
-def get_dataset_filelist()->list:
-    training_files:List[dict] = list()
+def get_dataset_filelist() -> list:
+    training_files: List[dict] = list()
     for root_dir, _, file_list in os.walk("./DCASEFoleySoundSynthesisDevSet"):
         for file_name in file_list:
             if os.path.splitext(file_name)[-1] == ".wav":
-                training_files.append({"class_id":clas_dict[root_dir.split("/")[-1]],"file_path":f"{root_dir}/{file_name}"})
-                #training_files.append((clas_dict[root_dir.split("/")[-1]],root_dir.split("/")[-2],))
+                training_files.append(
+                    {
+                        "class_id": clas_dict[root_dir.split("/")[-1]],
+                        "file_path": f"{root_dir}/{file_name}",
+                    }
+                )
+                # training_files.append((clas_dict[root_dir.split("/")[-1]],root_dir.split("/")[-2],))
     return training_files
 
 
@@ -103,10 +109,21 @@ Args:
 """
 
 
-def mel_extract(file_list, mel_path, max_length=22050 * 4, n_fft=1024, n_mels=80, hop_length=256, sample_rate=22050,
-                fmin=0, fmax=8000):
+def mel_extract(
+    file_list,
+    mel_path,
+    max_length=22050 * 4,
+    n_fft=1024,
+    n_mels=80,
+    hop_length=256,
+    sample_rate=22050,
+    fmin=0,
+    fmax=8000,
+):
     # file_list = get_file_path(wav_path)
-    mel = audio2mel.Audio2Mel(file_list, max_length, n_fft, n_mels, hop_length, sample_rate, fmin, fmax)
+    mel = audio2mel.Audio2Mel(
+        file_list, max_length, n_fft, n_mels, hop_length, sample_rate, fmin, fmax
+    )
 
     # print(mel[0][0].shape)
 
@@ -151,7 +168,13 @@ def mel_generate_test():
             out, _ = model(mel)
             out = out.squeeze(1).cpu().numpy()
             # print(out[0][0][-4:])
-            np.save(os.path.join('/home/lxb/Desktop/sound-recognition/mel-generated9_ablation', os.path.split(filname)[1]), out)
+            np.save(
+                os.path.join(
+                    '/home/lxb/Desktop/sound-recognition/mel-generated9_ablation',
+                    os.path.split(filname)[1],
+                ),
+                out,
+            )
 
 
 class LMDBDataset(Dataset):
@@ -201,9 +224,6 @@ if __name__ == '__main__':
 
     # _, data = get_dataset_filelist(class_id='90')
     # print(len(data))
-
-
-
 
     # mel_extract_test()
     # dataset = LMDBDataset('code')

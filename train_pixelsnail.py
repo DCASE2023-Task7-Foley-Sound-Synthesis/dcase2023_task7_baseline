@@ -1,4 +1,5 @@
 import argparse
+import os
 
 import numpy as np
 import torch
@@ -6,11 +7,11 @@ from torch import nn, optim
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-amp = None
-
 from datasets import LMDBDataset
 from pixelsnail import PixelSNAIL
 from scheduler import CycleScheduler
+
+amp = None
 
 
 def train(epoch, loader, model, optimizer, scheduler, device):

@@ -32,7 +32,7 @@ class DCASE2023FoleySoundSynthesis:
             3:'Keyboard',
             4:'MovingMotorVehicle',
             5:'Rain',
-            6:'Sneeze'
+            6:'Sneeze_Cough'
         }
         self.sr:int = 22050
         self.save_dir:str = "./synthesized"

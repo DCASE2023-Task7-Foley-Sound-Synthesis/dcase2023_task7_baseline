@@ -22,7 +22,7 @@ clas_dict:dict = {
             "Keyboard":3,
             "MovingMotorVehicle":4,
             "Rain":5,
-            "Sneeze":6
+            "Sneeze_Cough":6
         }
 
 def get_file_path(path):

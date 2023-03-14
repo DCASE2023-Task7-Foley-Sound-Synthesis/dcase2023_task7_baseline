@@ -22,7 +22,7 @@ For the neural vocoder, we brought the generator model code from [jik876/hifi-ga
 * Create conda environment with dependencies: 
 
   ```
-  conda create -f dcase_baseline_env.yml -n dcase_task7
+  conda env create -f dcase_baseline_env.yml -n dcase_task7
   ```
 
 * Activate conda environment:  

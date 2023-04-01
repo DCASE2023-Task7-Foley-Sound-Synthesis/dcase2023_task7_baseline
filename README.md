@@ -19,16 +19,13 @@ For the neural vocoder, we brought the generator model code from [jik876/hifi-ga
   git clone https://github.com/DCASE2023-Task7-Foley-Sound-Synthesis/dcase2023_task7_baseline.git
   ```
 
-* Create conda environment with dependencies: 
+* Install python requirements referring to packages as follows: 
 
   ```
-  conda env create -f dcase_baseline_env.yml -n dcase_task7
-  ```
-
-* Activate conda environment:  
-
-  ```
-  conda activate dcase_task7
+  torch==1.13.1
+  librosa==0.10.0
+  python-lmdb==1.4.0
+  tqdm==4.65.0
   ```
 
 * Download the development dataset and move it to the root folder. The dataset path must be `./DCASEFoleySoundSynthesisDevSet`

@@ -25,7 +25,7 @@ For the neural vocoder, we brought the generator model code from [jik876/hifi-ga
   torch==1.13.1
   librosa==0.10.0
   python-lmdb==1.4.0
-  tqdm==4.65.0
+  tqdm
   ```
 
 * Download the development dataset and move it to the root folder. The dataset path must be `./DCASEFoleySoundSynthesisDevSet`
